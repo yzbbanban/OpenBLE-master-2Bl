@@ -3,7 +3,6 @@ package com.nokelock.nokelockble;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Process;
-import android.service.autofill.SaveCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
