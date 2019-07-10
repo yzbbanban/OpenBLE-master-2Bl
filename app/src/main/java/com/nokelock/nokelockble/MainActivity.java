@@ -51,12 +51,18 @@ public class MainActivity extends MPermissionsActivity {
     private DeviceAdapter adapter;
     private Comparator comp;
 
-    private String exName;
+    private String macAddress;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //TODO
+//        Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
+//        intent.putExtra(ExtraConstant.NAME, "768901006342");
+//        intent.putExtra(ExtraConstant.ADDRESS, "XXXXXXXX");
+//        startActivity(intent);
         initBLE();
         initWidget();
     }
@@ -83,8 +89,9 @@ public class MainActivity extends MPermissionsActivity {
     }
 
     private void initBLE() {
-        exName = getIntent().getStringExtra(ExtraConstant.NAME);
-        Log.i(TAG, "initBLE: "+exName);
+        macAddress = getIntent().getStringExtra(ExtraConstant.MAC_ADDRESS);
+        name = getIntent().getStringExtra(ExtraConstant.NAME);
+        Log.i(TAG, "initBLE: " + macAddress);
         boolean bindService = bindService(new Intent(this, BluetoothLeService.class), connection, Context.BIND_AUTO_CREATE);
         if (bindService) {
             Log.w(MainActivity.class.getSimpleName(), "蓝牙初始化成功");
@@ -145,8 +152,8 @@ public class MainActivity extends MPermissionsActivity {
                 }
                 String address = bluetoothDevice.getDevice().getAddress();
                 Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
-                intent.putExtra("name", name);
-                intent.putExtra("address", address);
+                intent.putExtra(ExtraConstant.NAME, name);
+                intent.putExtra(ExtraConstant.ADDRESS, address);
                 startActivity(intent);
 
             }
@@ -234,6 +241,18 @@ public class MainActivity extends MPermissionsActivity {
                     if (adapter != null) {
                         Toast.makeText(MainActivity.this,
                                 "==>" + new Gson().toJson(adapterList), Toast.LENGTH_LONG).show();
+                        for (BleDevice bleDevice : adapterList) {
+                            if (macAddress.equals(bleDevice.getDevice().getAddress())) {
+                                App.getInstance().getBluetoothLeService().getmBluetoothAdapter().stopLeScan(leScanCallback);
+                                isRefreshing = false;
+                                tvRefresh.setText("扫描结束");
+                                String address = bleDevice.getDevice().getAddress();
+                                Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
+                                intent.putExtra("name", MainActivity.this.name);
+                                intent.putExtra("address", address);
+                                startActivity(intent);
+                            }
+                        }
                         adapter.notifyDataSetChanged();
                     }
                     break;

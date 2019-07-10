@@ -35,5 +35,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'cn.yipianfengye.android:zxing-library:2.2'
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+    compile 'org.jsoup:jsoup:1.9.2'
 
 }

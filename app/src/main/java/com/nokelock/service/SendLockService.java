@@ -1,6 +1,5 @@
 package com.nokelock.service;
 
-import com.nokelock.bean.ResultCode;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -13,5 +12,7 @@ import retrofit2.http.POST;
 public interface SendLockService {
     @POST("ajaxks")
     @FormUrlEncoded
-    Call<ResultCode<String>> call(@Field("exception") String exception);
+    Call<String> call(@Field("phoneno") String phoneno,
+                      @Field("code") String code,
+                      @Field("reason") String reason);
 }

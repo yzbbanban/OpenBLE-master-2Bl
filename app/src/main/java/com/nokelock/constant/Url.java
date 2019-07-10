@@ -17,4 +17,9 @@ public class Url {
      */
     public static final String SEND_LOCK = "http://smart-unitlog.com:8000/cage_car/index.php/Front/";
 
+    /**
+     * 根据 id 获取 mac 信息
+     */
+    public static final String GET_MAC = " http://smart-unitlog.com:8000/cage_car/index.php/sjtbjk/mac_fun/";
+
 }

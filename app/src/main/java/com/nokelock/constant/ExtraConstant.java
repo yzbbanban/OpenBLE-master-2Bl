@@ -28,6 +28,11 @@ public class ExtraConstant {
      * 锁唯一码name
      */
     public static final String NAME = "6";
+
+    /**
+     * 扫码 api 获取的 mac 地址
+     */
+    public static final String MAC_ADDRESS = "6";
     /**
      * 蓝牙 mac 地址
      */

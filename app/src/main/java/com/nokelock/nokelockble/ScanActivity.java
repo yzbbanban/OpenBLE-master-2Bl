@@ -2,21 +2,27 @@ package com.nokelock.nokelockble;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Process;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.nokelock.constant.ExtraConstant;
-import com.tbruyelle.rxpermissions2.Permission;
+import com.nokelock.constant.Url;
+import com.nokelock.service.GetMacService;
+import com.nokelock.utils.ToastUtil;
+import com.nokelock.utils.retrofit.MyCallback;
+import com.nokelock.utils.retrofit.RetrofitUtils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uuzuche.lib_zxing.activity.CaptureActivity;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 
 import io.reactivex.functions.Consumer;
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class ScanActivity extends AppCompatActivity {
 
@@ -48,7 +54,10 @@ public class ScanActivity extends AppCompatActivity {
 
         btnScan = (Button) findViewById(R.id.btn_scan);
         initListener();
+
     }
+
+
 
     private void initListener() {
         btnScan.setOnClickListener(new View.OnClickListener() {
@@ -83,9 +92,7 @@ public class ScanActivity extends AppCompatActivity {
                 if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
                     String result = bundle.getString(CodeUtils.RESULT_STRING);
                     Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(ScanActivity.this, MainActivity.class);
-                    intent.putExtra(ExtraConstant.NAME, result);
-                    startActivity(intent);
+                    startMain(result);
                 } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
                     Toast.makeText(ScanActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
                 }
@@ -94,30 +101,36 @@ public class ScanActivity extends AppCompatActivity {
 
     }
 
+
+    private void startMain(final String result) {
+        GetMacService request = RetrofitUtils
+                .getRetrofit(Url.GET_MAC)
+                .create(GetMacService.class);
+        Call<String> call = request.call(result);
+        call.enqueue(new MyCallback<String>() {
+            @Override
+            public void onSuc(Response<String> response) {
+                Log.i("sss", "onSuc-->: " + response.code());
+                String macAddress = response.body();
+                ToastUtil.showShortToast("发送成功");
+                Intent intent = new Intent(ScanActivity.this, MainActivity.class);
+                intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress);
+                intent.putExtra(ExtraConstant.NAME, result);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFail(String message) {
+                Log.i("eee", "onFail: " + message);
+                ToastUtil.showShortToast("二维码发送失败");
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Process.killProcess(Process.myPid());
     }
 
-    public void checkPermissionRequestEach() {
-        RxPermissions permissions = new RxPermissions(this);
-        permissions.setLogging(true);
-        permissions.requestEach(Manifest.permission.CAMERA)
-                .subscribe(new Consumer<Permission>() {
-                    @Override
-                    public void accept(Permission permission) throws Exception {
-                        Log.e(TAG, "checkPermissionRequestEach--:" + "-permission-:" + permission.name + "---------------");
-                        if (permission.name.equalsIgnoreCase(Manifest.permission.CAMERA)) {
-                            if (permission.granted) {//同意后调用
-                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-:" + true);
-                            } else if (permission.shouldShowRequestPermissionRationale) {//禁止，但没有选择“以后不再询问”，以后申请权限，会继续弹出提示
-                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-shouldShowRequestPermissionRationale:" + false);
-                            } else {//禁止，但选择“以后不再询问”，以后申请权限，不会继续弹出提示
-                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-:" + false);
-                            }
-                        }
-                    }
-                });
-    }
 }
