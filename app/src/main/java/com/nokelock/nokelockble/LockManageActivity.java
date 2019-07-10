@@ -15,10 +15,18 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.nokelock.constant.Url;
 import com.nokelock.service.BluetoothLeService;
+import com.nokelock.service.SendCodeService;
 import com.nokelock.utils.HexUtils;
 import com.nokelock.utils.MPermissionsActivity;
 import com.nokelock.utils.SampleGattAttributes;
+import com.nokelock.utils.ToastUtil;
+import com.nokelock.utils.retrofit.MyCallback;
+import com.nokelock.utils.retrofit.RetrofitUtils;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class LockManageActivity extends MPermissionsActivity implements View.OnClickListener {
 
@@ -37,6 +45,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     private ProgressDialog progressDialog;
     private boolean isAuto = false;
     private int count = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +115,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     progressDialog.dismiss();
                     deviceStatus.setText("连接状态：已断开");
                     count = 0;
-                    openCount.setText("开锁次数：" +count);
+                    openCount.setText("开锁次数：" + count);
                     break;
                 case SampleGattAttributes.ACTION_GATT_SERVICES_DISCOVERED:
                     //发现服务
@@ -117,7 +126,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     parseData(intent.getStringExtra("data"));
                     break;
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    Log.e(LockManageActivity.class.getSimpleName(),"state_changed");
+                    Log.e(LockManageActivity.class.getSimpleName(), "state_changed");
                     break;
             }
         }
@@ -134,7 +143,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         System.arraycopy(values, 0, x, 0, 16);
         byte[] decrypt = BluetoothLeService.Decrypt(x, SampleGattAttributes.key);
         String decryptString = HexUtils.bytesToHexString(decrypt).toUpperCase();
-        Log.e(LockManageActivity.class.getSimpleName(),"value:"+decryptString);
+        Log.e(LockManageActivity.class.getSimpleName(), "value:" + decryptString);
         if (decryptString.startsWith("0602")) {//token
             if (decrypt != null && decrypt.length == 16) {
                 if (decrypt[0] == 0x06 && decrypt[1] == 0x02) {
@@ -144,7 +153,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     token[3] = decrypt[6];
                     CHIP_TYPE = decrypt[7];
                     DEV_TYPE = decrypt[10];
-                    deviceVersion.setText("当前版本："+Integer.parseInt(decryptString.substring(16, 18), 16) + "." + Integer.parseInt(decryptString.substring(18, 20), 16));
+                    deviceVersion.setText("当前版本：" + Integer.parseInt(decryptString.substring(16, 18), 16) + "." + Integer.parseInt(decryptString.substring(18, 20), 16));
                     handler.sendEmptyMessageDelayed(1, 1000);
                 }
             }
@@ -163,7 +172,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             } else {
                 count++;
                 deviceCz.setText("开锁成功");
-                openCount.setText("开锁次数：" +count);
+                openCount.setText("开锁次数：" + count);
             }
         } else if (decryptString.startsWith("050F")) {//锁状态
             if (decryptString.startsWith("050F0101")) {
@@ -177,24 +186,24 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             } else {
                 deviceCz.setText("当前操作：复位成功");
             }
-        }else if (decryptString.startsWith("0508")){//上锁
-            if (decryptString.startsWith("05080101")){
+        } else if (decryptString.startsWith("0508")) {//上锁
+            if (decryptString.startsWith("05080101")) {
                 deviceCz.setText("当前操作：上锁失败");
-            }else {
+            } else {
                 deviceCz.setText("当前操作：上锁成功");
-                if (isAuto){
-                    handler.sendEmptyMessageDelayed(2,1000);
+                if (isAuto) {
+                    handler.sendEmptyMessageDelayed(2, 1000);
                 }
 
             }
-        }else if (decryptString.startsWith("0505")){
-            if (decryptString.startsWith("05050101")){
+        } else if (decryptString.startsWith("0505")) {
+            if (decryptString.startsWith("05050101")) {
                 deviceCz.setText("当前操作：修改密码失败");
-            }else {
+            } else {
                 deviceCz.setText("当前操作：修改密码成功");
             }
-        }else if (decryptString.startsWith("CB0503")){
-            App.getInstance().getBluetoothLeService().writeCharacteristic(new byte[]{0x05, 0x04, 0x06,SampleGattAttributes.password[0],SampleGattAttributes.password[1],SampleGattAttributes.password[2],SampleGattAttributes.password[3],SampleGattAttributes.password[4],SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00});
+        } else if (decryptString.startsWith("CB0503")) {
+            App.getInstance().getBluetoothLeService().writeCharacteristic(new byte[]{0x05, 0x04, 0x06, SampleGattAttributes.password[0], SampleGattAttributes.password[1], SampleGattAttributes.password[2], SampleGattAttributes.password[3], SampleGattAttributes.password[4], SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00});
         }
     }
 
@@ -204,7 +213,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         sendDataBytes = null;
         switch (v.getId()) {
             case R.id.bt_open://开锁
-                sendDataBytes = new byte[]{0x05, 0x01, 0x06, SampleGattAttributes.password[0],SampleGattAttributes.password[1],SampleGattAttributes.password[2],SampleGattAttributes.password[3],SampleGattAttributes.password[4],SampleGattAttributes.password[5],   token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00};
+                sendDataBytes = new byte[]{0x05, 0x01, 0x06, SampleGattAttributes.password[0], SampleGattAttributes.password[1], SampleGattAttributes.password[2], SampleGattAttributes.password[3], SampleGattAttributes.password[4], SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00};
                 App.getInstance().getBluetoothLeService().writeCharacteristic(sendDataBytes);
 
                 break;
@@ -219,7 +228,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
 
                 break;
             case R.id.bt_update_password://修改密码
-                App.getInstance().getBluetoothLeService().writeCharacteristic(new byte[]{0x05, 0x03, 0x06,SampleGattAttributes.password[0],SampleGattAttributes.password[1],SampleGattAttributes.password[2],SampleGattAttributes.password[3],SampleGattAttributes.password[4],SampleGattAttributes.password[5],  token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00});
+                App.getInstance().getBluetoothLeService().writeCharacteristic(new byte[]{0x05, 0x03, 0x06, SampleGattAttributes.password[0], SampleGattAttributes.password[1], SampleGattAttributes.password[2], SampleGattAttributes.password[3], SampleGattAttributes.password[4], SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00});
 
                 break;
         }
@@ -243,4 +252,23 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             }
         }
     };
+
+    private void sendMsg(String phone, String msg) {
+        SendCodeService request = RetrofitUtils.getRetrofit(Url.SEND_CODE).create(SendCodeService.class);
+        Call<String> call = request.call(phone, msg);
+        call.enqueue(new MyCallback<String>() {
+            @Override
+            public void onSuc(Response<String> response) {
+                Log.i("sss", "onSuc-->: " + response.code());
+                ToastUtil.showShortToast("发送成功");
+            }
+
+            @Override
+            public void onFail(String message) {
+                Log.i("eee", "onFail: " + message);
+
+            }
+        });
+    }
+
 }

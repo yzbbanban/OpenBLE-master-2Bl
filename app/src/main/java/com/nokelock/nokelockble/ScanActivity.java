@@ -1,16 +1,23 @@
 package com.nokelock.nokelockble;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Process;
+import android.service.autofill.SaveCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.nokelock.constant.ExtraConstant;
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uuzuche.lib_zxing.activity.CaptureActivity;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
+
+import io.reactivex.functions.Consumer;
 
 public class ScanActivity extends AppCompatActivity {
 
@@ -23,6 +30,23 @@ public class ScanActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.setLogging(true);
+        permissions.request(Manifest.permission.CAMERA)
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            //请求成功
+                            Toast.makeText(ScanActivity.this, "camera success", Toast.LENGTH_SHORT).show();
+                        } else {
+                            //请求失败
+                            Toast.makeText(ScanActivity.this, "camera failure" +
+                                    "", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
         btnScan = (Button) findViewById(R.id.btn_scan);
         initListener();
     }
@@ -31,6 +55,7 @@ public class ScanActivity extends AppCompatActivity {
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(ScanActivity.this, CaptureActivity.class);
                 startActivityForResult(intent, REQUEST_CODE);
 
@@ -74,5 +99,26 @@ public class ScanActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Process.killProcess(Process.myPid());
+    }
+
+    public void checkPermissionRequestEach() {
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.setLogging(true);
+        permissions.requestEach(Manifest.permission.CAMERA)
+                .subscribe(new Consumer<Permission>() {
+                    @Override
+                    public void accept(Permission permission) throws Exception {
+                        Log.e(TAG, "checkPermissionRequestEach--:" + "-permission-:" + permission.name + "---------------");
+                        if (permission.name.equalsIgnoreCase(Manifest.permission.CAMERA)) {
+                            if (permission.granted) {//同意后调用
+                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-:" + true);
+                            } else if (permission.shouldShowRequestPermissionRationale) {//禁止，但没有选择“以后不再询问”，以后申请权限，会继续弹出提示
+                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-shouldShowRequestPermissionRationale:" + false);
+                            } else {//禁止，但选择“以后不再询问”，以后申请权限，不会继续弹出提示
+                                Log.e(TAG, "checkPermissionRequestEach--:" + "-READ_EXTERNAL_STORAGE-:" + false);
+                            }
+                        }
+                    }
+                });
     }
 }

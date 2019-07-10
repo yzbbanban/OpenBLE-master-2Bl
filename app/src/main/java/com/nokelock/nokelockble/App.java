@@ -14,8 +14,10 @@ import com.uuzuche.lib_zxing.activity.ZXingLibrary;
 
 public class App extends Application {
 
+    public static boolean isOnAppStore = false;
     private static App app;
     private BluetoothLeService bluetoothLeService;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -23,15 +25,15 @@ public class App extends Application {
         app = this;
     }
 
-    public static App getInstance(){
+    public static App getInstance() {
         return app;
     }
 
-    public BluetoothLeService getBluetoothLeService(){
+    public BluetoothLeService getBluetoothLeService() {
         return bluetoothLeService;
     }
 
-    public void setBluetoothLeService(BluetoothLeService bluetoothLeService){
+    public void setBluetoothLeService(BluetoothLeService bluetoothLeService) {
         this.bluetoothLeService = bluetoothLeService;
     }
 }
