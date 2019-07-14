@@ -22,7 +22,7 @@ public abstract class MyCallback<T> implements Callback<T> {
     public void onResponse(Call<T> call, Response<T> response) {
         Log.i(TAG, "onResponse: " + response.body());
         if (response.raw().code() == 200) {//200是服务器有合理响应
-            LogUtil.info(TAG, "code: " + response.body());
+            LogUtil.info(TAG, "result: " + response.body());
             LogUtil.info(TAG, "设备信息更新成功");
             onSuc(response);
 

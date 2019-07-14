@@ -32,9 +32,9 @@ public class ExtraConstant {
     /**
      * 扫码 api 获取的 mac 地址
      */
-    public static final String MAC_ADDRESS = "6";
+    public static final String MAC_ADDRESS = "7";
     /**
      * 蓝牙 mac 地址
      */
-    public static final String ADDRESS = "7";
+    public static final String ADDRESS = "8";
 }

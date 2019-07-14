@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nokelock.constant.ExtraConstant;
 import com.nokelock.constant.Url;
@@ -147,15 +148,17 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     class NetImageHandler implements Runnable {
         @Override
         public void run() {
+            Message message = handler.obtainMessage();
             try {
                 //发送消息，通知UI组件显示图片
                 List<String> l = getCategoryMsg();
-                Message message = handler.obtainMessage();
                 message.what = 3;
                 message.obj = l;
                 handler.sendMessage(message);
             } catch (Exception e) {
                 e.printStackTrace();
+                message.what = 4;
+                handler.sendMessage(message);
             }
         }
     }
@@ -398,6 +401,9 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     tv_driver_name.setText(l.get(3));
                     tv_box.setText(l.get(4));
                     break;
+                case 4:
+                    Toast.makeText(LockManageActivity.this, "暂无笼车信息", Toast.LENGTH_SHORT).show();
+                    break;
             }
         }
     };
@@ -409,7 +415,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             @Override
             public void onSuc(Response<String> response) {
                 try {
-                    String msg = "" + response.code();
+                    String msg = "" + response.body();
                     Log.i("sss", "onSuc-->: " + msg);
                     if (msg != null) {
                         code = msg;
@@ -442,7 +448,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         call.enqueue(new MyCallback<String>() {
             @Override
             public void onSuc(Response<String> response) {
-                Log.i("sss", "onSuc-->: " + response.code());
+                Log.i("sss", "onSuc-->: " + response.body());
                 ToastUtil.showShortToast("发送成功");
                 bt_open.setEnabled(true);
             }

@@ -58,11 +58,6 @@ public class MainActivity extends MPermissionsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //TODO
-//        Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
-//        intent.putExtra(ExtraConstant.NAME, "768901006342");
-//        intent.putExtra(ExtraConstant.ADDRESS, "XXXXXXXX");
-//        startActivity(intent);
         initBLE();
         initWidget();
     }
@@ -152,7 +147,7 @@ public class MainActivity extends MPermissionsActivity {
                 }
                 String address = bluetoothDevice.getDevice().getAddress();
                 Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
-                intent.putExtra(ExtraConstant.NAME, name);
+                intent.putExtra(ExtraConstant.NAME, MainActivity.this.name);
                 intent.putExtra(ExtraConstant.ADDRESS, address);
                 startActivity(intent);
 
@@ -248,8 +243,8 @@ public class MainActivity extends MPermissionsActivity {
                                 tvRefresh.setText("扫描结束");
                                 String address = bleDevice.getDevice().getAddress();
                                 Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
-                                intent.putExtra("name", MainActivity.this.name);
-                                intent.putExtra("address", address);
+                                intent.putExtra(ExtraConstant.NAME, MainActivity.this.name);
+                                intent.putExtra(ExtraConstant.ADDRESS, address);
                                 startActivity(intent);
                             }
                         }

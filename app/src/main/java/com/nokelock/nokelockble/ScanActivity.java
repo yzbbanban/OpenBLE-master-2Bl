@@ -58,7 +58,6 @@ public class ScanActivity extends AppCompatActivity {
     }
 
 
-
     private void initListener() {
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,9 +111,10 @@ public class ScanActivity extends AppCompatActivity {
             public void onSuc(Response<String> response) {
                 Log.i("sss", "onSuc-->: " + response.code());
                 String macAddress = response.body();
-                ToastUtil.showShortToast("发送成功");
+                ToastUtil.showShortToast("获取 mac 地址成功");
                 Intent intent = new Intent(ScanActivity.this, MainActivity.class);
-                intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress);
+                Log.i("sss", "macAddress-->: " + macAddress);
+                intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress.replaceAll("_",":"));
                 intent.putExtra(ExtraConstant.NAME, result);
                 startActivity(intent);
             }
