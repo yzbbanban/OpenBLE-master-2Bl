@@ -23,7 +23,7 @@ public abstract class MyCallback<T> implements Callback<T> {
         Log.i(TAG, "onResponse: " + response.body());
         if (response.raw().code() == 200) {//200是服务器有合理响应
             LogUtil.info(TAG, "result: " + response.body());
-            LogUtil.info(TAG, "设备信息更新成功");
+            LogUtil.info(TAG, "设备信息响应成功");
             onSuc(response);
 
         } else {//失败响应

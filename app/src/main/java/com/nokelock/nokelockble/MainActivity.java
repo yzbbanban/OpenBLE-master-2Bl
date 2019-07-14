@@ -65,6 +65,10 @@ public class MainActivity extends MPermissionsActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if ("".equals(macAddress)) {
+            Toast.makeText(MainActivity.this, "请重新扫码", Toast.LENGTH_SHORT).show();
+            finish();
+        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -131,7 +135,7 @@ public class MainActivity extends MPermissionsActivity {
         tvRefresh = (TextView) findViewById(R.id.tv_refresh);
         Button btRefresh = (Button) findViewById(R.id.bt_refresh);
         adapter = new DeviceAdapter(this, adapterList);
-        Toast.makeText(this, "==>" + new Gson().toJson(adapterList), Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "==>" + new Gson().toJson(adapterList), Toast.LENGTH_LONG).show();
         listView.setAdapter(adapter);
         new Thread(new DeviceThread()).start();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -234,8 +238,8 @@ public class MainActivity extends MPermissionsActivity {
                 case 0://更新设备
                     Collections.sort(adapterList, comp);
                     if (adapter != null) {
-                        Toast.makeText(MainActivity.this,
-                                "==>" + new Gson().toJson(adapterList), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(MainActivity.this,
+//                                "==>" + new Gson().toJson(adapterList), Toast.LENGTH_LONG).show();
                         for (BleDevice bleDevice : adapterList) {
                             if (macAddress.equals(bleDevice.getDevice().getAddress())) {
                                 App.getInstance().getBluetoothLeService().getmBluetoothAdapter().stopLeScan(leScanCallback);
@@ -245,7 +249,13 @@ public class MainActivity extends MPermissionsActivity {
                                 Intent intent = new Intent(MainActivity.this, LockManageActivity.class);
                                 intent.putExtra(ExtraConstant.NAME, MainActivity.this.name);
                                 intent.putExtra(ExtraConstant.ADDRESS, address);
+                                macAddress = "";
                                 startActivity(intent);
+                            } else {
+                                if ("".equals(macAddress)) {
+                                    Toast.makeText(MainActivity.this, "请重新扫码", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
                             }
                         }
                         adapter.notifyDataSetChanged();

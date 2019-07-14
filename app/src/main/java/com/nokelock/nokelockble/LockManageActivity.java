@@ -17,6 +17,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bigkoo.pickerview.OptionsPickerView;
 import com.nokelock.constant.ExtraConstant;
 import com.nokelock.constant.Url;
 import com.nokelock.service.BluetoothLeService;
@@ -32,6 +33,7 @@ import com.nokelock.utils.retrofit.MyCallback;
 import com.nokelock.utils.retrofit.RetrofitUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +47,8 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     private byte DEV_TYPE;
     //    private TextView deviceName;
     private TextView deviceMac;
-    //    private TextView deviceBattery;
-//    private TextView deviceVersion;
+    private TextView deviceBattery;
+    //    private TextView deviceVersion;
     private TextView deviceCz;
     private TextView deviceStatus;
     //    private TextView openCount;
@@ -67,6 +69,8 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     private TextView tv_flow_num;
     private TextView tv_driver_name;
     private TextView tv_box;
+
+    private CheckBox cb_manage;
 
     private boolean flag = true;
     private int codeCount = 60;
@@ -98,12 +102,12 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     private void initWidget() {
 //        deviceName = (TextView) findViewById(R.id.tv_name);
         deviceMac = (TextView) findViewById(R.id.tv_address);
-//        deviceBattery = (TextView) findViewById(R.id.tv_battery);
+        deviceBattery = (TextView) findViewById(R.id.tv_battery);
 //        deviceVersion = (TextView) findViewById(R.id.tv_version);
         deviceCz = (TextView) findViewById(R.id.tv_cz);
         deviceStatus = (TextView) findViewById(R.id.tv_status);
         et_mobile = (CleanEditText) findViewById(R.id.et_mobile);
-        et_msg = (CleanEditText) findViewById(R.id.et_msg);
+//        et_msg = (CleanEditText) findViewById(R.id.et_msg);
         bt_open = (Button) findViewById(R.id.bt_open);
         et_code = (CleanEditText) findViewById(R.id.et_code);
         bt_code = (Button) findViewById(R.id.bt_code);
@@ -112,11 +116,13 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         tv_flow_num = findViewById(R.id.tv_flow_num);
         tv_driver_name = findViewById(R.id.tv_driver_name);
         tv_box = findViewById(R.id.tv_box);
+        cb_manage = findViewById(R.id.cb_manage);
 //        openCount = (TextView) findViewById(R.id.open_count);
         findViewById(R.id.bt_code).setOnClickListener(this);
         findViewById(R.id.bt_open).setOnClickListener(this);
 //        findViewById(R.id.bt_close).setOnClickListener(this);
         findViewById(R.id.bt_status).setOnClickListener(this);
+        findViewById(R.id.cb_manage).setOnClickListener(this);
 //        findViewById(R.id.bt_update_password).setOnClickListener(this);
         ((CheckBox) findViewById(R.id.bt_auto)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -239,7 +245,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 deviceCz.setText("获取电量失败");
             } else {
                 String battery = decryptString.substring(6, 8);
-//                deviceBattery.setText("当前电量：" + Integer.parseInt(battery, 16));
+                deviceBattery.setText("当前电量：" + Integer.parseInt(battery, 16));
             }
         } else if (decryptString.startsWith("0502")) {//开锁
             if (decryptString.startsWith("05020101")) {
@@ -247,6 +253,8 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             } else {
                 count++;
                 deviceCz.setText("开锁成功");
+                Toast.makeText(LockManageActivity.this,
+                        "开锁成功", Toast.LENGTH_SHORT).show();
 //                openCount.setText("开锁次数：" + count);
             }
         } else if (decryptString.startsWith("050F")) {//锁状态
@@ -310,8 +318,8 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     bt_code.setEnabled(true);
                 }
 
-                String msg = et_msg.getText().toString();
-                sendLockMsg(phone, code, msg);
+//                String msg = et_msg.getText().toString();
+                sendLockMsg(phone, code, "x");
                 break;
             case R.id.bt_status://获取锁状态
                 sendDataBytes = new byte[]{0x05, 0x0E, 0x01, 0X01, token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -327,6 +335,11 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
 //                App.getInstance().getBluetoothLeService().writeCharacteristic(new byte[]{0x05, 0x03, 0x06, SampleGattAttributes.password[0], SampleGattAttributes.password[1], SampleGattAttributes.password[2], SampleGattAttributes.password[3], SampleGattAttributes.password[4], SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00});
 //
 //                break;
+            case R.id.cb_manage:
+                if (cb_manage.isChecked()) {
+                    setPickView();
+                }
+                break;
             case R.id.bt_code:
                 //发送验证码
                 bt_code.setEnabled(false);
@@ -418,8 +431,12 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     String msg = "" + response.body();
                     Log.i("sss", "onSuc-->: " + msg);
                     if (msg != null) {
-                        code = msg;
-                        ToastUtil.showShortToast("验证码发送成功");
+                        if ("1".equals(msg)) {
+                            ToastUtil.showShortToast("手机号在平台中不存在");
+                        } else {
+                            code = msg;
+                            ToastUtil.showShortToast("验证码发送成功");
+                        }
                     }
                 } catch (Exception e) {
                     ToastUtil.showShortToast(e.getMessage());
@@ -449,7 +466,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
             @Override
             public void onSuc(Response<String> response) {
                 Log.i("sss", "onSuc-->: " + response.body());
-                ToastUtil.showShortToast("发送成功");
+                ToastUtil.showShortToast("数据上传成功");
                 bt_open.setEnabled(true);
             }
 
@@ -459,5 +476,29 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 bt_open.setEnabled(true);
             }
         });
+    }
+
+    List<String> manage = new ArrayList<>();
+
+    /**
+     * 客户选择器
+     */
+    public void setPickView() {
+        manage = new ArrayList<>();
+        //条件选择器
+        manage.add("18795980532");
+        manage.add("18795980531");
+        manage.add("18795980530");
+
+        OptionsPickerView pvOptions = new OptionsPickerView.Builder(this,
+                new OptionsPickerView.OnOptionsSelectListener() {
+                    @Override
+                    public void onOptionsSelect(int options1, int options2, int options3, View v) {
+                        //设置Text
+                        et_mobile.setText(manage.get(options1));
+                    }
+                }).build();
+        pvOptions.setPicker(manage, null, null);
+        pvOptions.show();
     }
 }

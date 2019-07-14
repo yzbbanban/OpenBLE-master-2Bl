@@ -14,4 +14,14 @@
         android:gravity="center"
         android:text="扫码" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_scan"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="请扫描笼车上面的二维码\n app 距离笼车 3 米以内"
+        android:textColor="#f00" />
+
 </RelativeLayout>
