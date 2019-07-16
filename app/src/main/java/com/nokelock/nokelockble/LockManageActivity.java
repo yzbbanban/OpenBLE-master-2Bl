@@ -75,7 +75,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     private boolean flag = true;
     private int codeCount = 60;
 
-    private String code;
+    private static String code;
     private Button bt_open;
 
     @Override
@@ -124,12 +124,12 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         findViewById(R.id.bt_status).setOnClickListener(this);
         findViewById(R.id.cb_manage).setOnClickListener(this);
 //        findViewById(R.id.bt_update_password).setOnClickListener(this);
-        ((CheckBox) findViewById(R.id.bt_auto)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                isAuto = isChecked;
-            }
-        });
+//        ((CheckBox) findViewById(R.id.bt_auto)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                isAuto = isChecked;
+//            }
+//        });
         String name = getIntent().getStringExtra(ExtraConstant.NAME);
         Log.i(TAG, "name: " + name);
         if (!TextUtils.isEmpty(name)) {
@@ -319,7 +319,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 }
 
 //                String msg = et_msg.getText().toString();
-                sendLockMsg(phone, code, "x");
+                sendLockMsg(phone, this.name, "x");
                 break;
             case R.id.bt_status://获取锁状态
                 sendDataBytes = new byte[]{0x05, 0x0E, 0x01, 0X01, token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -468,6 +468,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 Log.i("sss", "onSuc-->: " + response.body());
                 ToastUtil.showShortToast("数据上传成功");
                 bt_open.setEnabled(true);
+                LockManageActivity.code = "";
             }
 
             @Override
