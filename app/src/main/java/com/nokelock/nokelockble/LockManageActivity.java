@@ -487,16 +487,18 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     public void setPickView() {
         manage = new ArrayList<>();
         //条件选择器
-        manage.add("18795980532");
-        manage.add("18795980531");
-        manage.add("18795980530");
+        //
+        //
+        manage.add("张:17321101062");
+        manage.add("韩:18861832076");
+        manage.add("黄:18917860314");
 
         OptionsPickerView pvOptions = new OptionsPickerView.Builder(this,
                 new OptionsPickerView.OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
                         //设置Text
-                        et_mobile.setText(manage.get(options1));
+                        et_mobile.setText(manage.get(options1).split(":")[1]);
                     }
                 }).build();
         pvOptions.setPicker(manage, null, null);
