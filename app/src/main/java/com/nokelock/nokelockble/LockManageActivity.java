@@ -489,6 +489,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
         //条件选择器
         //
         //
+        manage.add("黄:15250202823");
         manage.add("张:17321101062");
         manage.add("韩:18861832076");
         manage.add("黄:18917860314");
