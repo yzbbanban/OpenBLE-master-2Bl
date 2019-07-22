@@ -482,7 +482,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
     List<String> manage = new ArrayList<>();
 
     /**
-     * 客户选择器
+     * 客户选择器nikand
      */
     public void setPickView() {
         manage = new ArrayList<>();

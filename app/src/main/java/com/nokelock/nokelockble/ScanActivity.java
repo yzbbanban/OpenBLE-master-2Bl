@@ -91,6 +91,10 @@ public class ScanActivity extends AppCompatActivity {
                 if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
                     String result = bundle.getString(CodeUtils.RESULT_STRING);
                     Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
+                    //真实id
+                    if (result.contains("code")) {
+                        result = result.split("code/")[1];
+                    }
                     startMain(result);
                 } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
                     Toast.makeText(ScanActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
@@ -114,7 +118,7 @@ public class ScanActivity extends AppCompatActivity {
                 ToastUtil.showShortToast("获取 mac 地址成功");
                 Intent intent = new Intent(ScanActivity.this, MainActivity.class);
                 Log.i("sss", "macAddress-->: " + macAddress);
-                intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress.replaceAll("_",":"));
+                intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress.replaceAll("_", ":"));
                 intent.putExtra(ExtraConstant.NAME, result);
                 startActivity(intent);
             }
