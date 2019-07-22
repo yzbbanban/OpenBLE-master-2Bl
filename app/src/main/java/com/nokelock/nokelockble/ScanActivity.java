@@ -103,6 +103,12 @@ public class ScanActivity extends AppCompatActivity {
         }
 
     }
+//
+//    public static void main(String[] args) {
+//        String result="http://dawdaw:6000/cage_car/index_php/front/code/79515513";
+//        result = result.split("code/")[1];
+//        System.out.println(result);
+//    }
 
 
     private void startMain(final String result) {
