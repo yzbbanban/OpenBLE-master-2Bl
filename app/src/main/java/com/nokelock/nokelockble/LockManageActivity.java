@@ -303,7 +303,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                     ToastUtil.showShortToast("请输入验证码");
                     return;
                 }
-                if (!nCode.equals("45861")) {
+                if (!nCode.equals(code)) {
                     ToastUtil.showShortToast("验证码不匹配");
                     return;
                 }
@@ -383,6 +383,13 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                                     break;
                                 }
                             }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bt_code.setText("获取验证码");
+                                    bt_code.setEnabled(true);
+                                }
+                            });
                             codeCount = 60;
 
                         }
@@ -424,16 +431,21 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
 
     private void sendMsg(String phone, String name) {
         SendCodeService request = RetrofitUtils.getRetrofit(Url.SEND_CODE).create(SendCodeService.class);
+        Log.i("sss", "sendMsg: " + phone + name);
         Call<String> call = request.call(phone, name);
         call.enqueue(new MyCallback<String>() {
             @Override
             public void onSuc(Response<String> response) {
                 try {
                     String msg = "" + response.body();
-                    Log.i("sss", "onSuc-->: " + msg);
+                    Log.i("sss", "onSuc验证码-->: " + msg);
                     if (msg != null) {
-                        if ("1".equals(msg)) {
-                            ToastUtil.showShortToast("手机号在平台中不存在");
+                        if ("2".equals(msg)) {
+                            ToastUtil.showShortToast("司机手机号不对不能开锁");
+                            flag = false;
+                            codeCount = 60;
+                            bt_code.setText("获取验证码");
+                            bt_code.setEnabled(true);
                         } else {
                             code = msg;
                             ToastUtil.showShortToast("验证码发送成功");
