@@ -121,7 +121,7 @@ public class ScanActivity extends AppCompatActivity {
             public void onSuc(Response<String> response) {
                 Log.i("sss", "onSuc-->: " + response.code());
                 String macAddress = response.body();
-                ToastUtil.showShortToast("获取 mac 地址成功");
+                ToastUtil.showShortToast("获取 mac 地址成功" + macAddress);
                 Intent intent = new Intent(ScanActivity.this, MainActivity.class);
                 Log.i("sss", "macAddress-->: " + macAddress);
                 intent.putExtra(ExtraConstant.MAC_ADDRESS, macAddress.replaceAll("_", ":"));
