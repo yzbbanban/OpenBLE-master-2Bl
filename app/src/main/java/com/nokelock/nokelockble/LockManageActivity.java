@@ -446,7 +446,20 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                             codeCount = 60;
                             bt_code.setText("获取验证码");
                             bt_code.setEnabled(true);
-                        } else {
+                        } else if("3".equals(msg)) {
+                            ToastUtil.showShortToast("无此司机");
+                            flag = false;
+                            codeCount = 60;
+                            bt_code.setText("获取验证码");
+                            bt_code.setEnabled(true);
+                        } else if("4".equals(msg)) {
+                            ToastUtil.showShortToast("司机手机号不对不能开锁");
+                            flag = false;
+                            codeCount = 60;
+                            bt_code.setText("获取验证码");
+                            bt_code.setEnabled(true);
+
+                        } else  {
                             code = msg;
                             ToastUtil.showShortToast("验证码发送成功");
                         }
