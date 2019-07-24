@@ -311,7 +311,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 ToastUtil.showLongToast("开锁中。。。");
                 sendDataBytes = new byte[]{0x05, 0x01, 0x06, SampleGattAttributes.password[0], SampleGattAttributes.password[1], SampleGattAttributes.password[2], SampleGattAttributes.password[3], SampleGattAttributes.password[4], SampleGattAttributes.password[5], token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00};
                 App.getInstance().getBluetoothLeService().writeCharacteristic(sendDataBytes);
-
+                code=null;
                 //发送数据
                 phone = et_mobile.getText().toString();
                 if (phone == null || "".equals(phone)) {
@@ -439,6 +439,7 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                 try {
                     String msg = "" + response.body();
                     Log.i("sss", "onSuc验证码-->: " + msg);
+//                    Toast.makeText(LockManageActivity.this,"验证码结果："+msg,Toast.LENGTH_LONG).show();
                     if (msg != null) {
                         if ("2".equals(msg)) {
                             ToastUtil.showShortToast("司机手机号不对不能开锁");
@@ -446,20 +447,26 @@ public class LockManageActivity extends MPermissionsActivity implements View.OnC
                             codeCount = 60;
                             bt_code.setText("获取验证码");
                             bt_code.setEnabled(true);
-                        } else if("3".equals(msg)) {
+                        } else if ("3".equals(msg)) {
                             ToastUtil.showShortToast("无此司机");
                             flag = false;
                             codeCount = 60;
                             bt_code.setText("获取验证码");
                             bt_code.setEnabled(true);
-                        } else if("4".equals(msg)) {
+                        } else if ("4".equals(msg)) {
                             ToastUtil.showShortToast("司机手机号不对不能开锁");
                             flag = false;
                             codeCount = 60;
                             bt_code.setText("获取验证码");
                             bt_code.setEnabled(true);
 
-                        } else  {
+                        } else if ("1".equals(msg)) {
+                            ToastUtil.showShortToast("验证码发送失败，请重试");
+                            flag = false;
+                            codeCount = 60;
+                            bt_code.setText("获取验证码");
+                            bt_code.setEnabled(true);
+                        } else {
                             code = msg;
                             ToastUtil.showShortToast("验证码发送成功");
                         }
